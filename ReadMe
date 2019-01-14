@@ -2,7 +2,7 @@ Here's a  stab at a Simple Resource Allocation Voting Contract.  I've been learn
 I also just spent over 45 minutes on this while watching reality TV tonight.   So, it's pretty much guaranteed to be perfect.
 
 Hahahaha.   Actually, it's guaranteed to have massive problems, incorrect assumptions, and other gaping technical and conceptual 
-problems.  I really am a clueless beginner at coding and I did put this together just now on the couch based on the things I've 
-learned from going through the @bobert sample SCs and a few Haskell tutorials.  But, if someone who actually knows what they are 
-doing would like to throw out a few pointers, that would be awesome.   
+problems.  I really am a clueless beginner at coding and I did put this together just now on the couch based on some raw beginner 
+things I've learned from going through the @bobert sample SCs and a few Haskell tutorials.  But, if someone who actually knows 
+what they are doing would like to throw out a few pointers, that would be awesome.   
   
