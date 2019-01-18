@@ -1,3 +1,5 @@
+module SimpleResourceAllocationVotingContractLearningProject where
+
 import qualified Language.PlutusTx            as PlutusTx
 import qualified Language.PlutusTx.Prelude    as P
 import qualified Language.PlutusTx.Builtins   as Builtins
