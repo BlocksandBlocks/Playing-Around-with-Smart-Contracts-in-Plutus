@@ -76,7 +76,7 @@ votingValidator = ValidatorScript $ Ledger.fromCompiledCode $$(PlutusTx.compile
   closeContractHandler hashedChar = EventHandler (\_ -> do
    logMsg "No candidate won."
    logMsg "Ending project and withdrawing money from SC."
-   collectFromScript votingValidator $ RedeemerScript $ Ledger.lifted hashedChar
+   collectFromScript votingValidator $ RedeemerScript $ Ledger.lifted hashedChar)
 
   $(mkFunction 'voteCheck)
   $(mkFunction 'fundProject)
