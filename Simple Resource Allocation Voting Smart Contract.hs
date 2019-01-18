@@ -43,6 +43,9 @@ votingValidator = ValidatorScript $ Ledger.fromCompiledCode $$(PlutusTx.compile
 
   scAddress :: Address'
   scAddress = Ledger.scriptAddress votingValidator
+  
+  watchSCAddress :: MockWallet ()
+  watchSCAddress = startWatching scAddress
 
   voteCheck :: Int -> MockWallet ()
   voteCheck num = if num /= 1 or (-1) then throwOtherError "You may only vote 1 for the winner or -1 for losers."
@@ -64,9 +67,6 @@ votingValidator = ValidatorScript $ Ledger.fromCompiledCode $$(PlutusTx.compile
    voteCheck num
    let hashedChar = plcSHA2_256 $ BSLC.pack $ show num
    collectFromScript votingValidator $ RedeemerScript $ Ledger.lifted numVote
-
-  watchSCAddress :: MockWallet ()
-  watchSCAddress = startWatching scAddress
 
   closeContractTrigger :: EventTrigger
   closeContractTrigger = andT
