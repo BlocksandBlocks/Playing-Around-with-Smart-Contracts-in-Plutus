@@ -38,6 +38,7 @@ votingValidator = ValidatorScript $ Ledger.fromCompiledCode $$(PlutusTx.compile
       if voteCarries
       then ()
       else $$(P.error) ($$(P.traceH) "Sorry. You did not win the vote." ())
+      --"traceH" is the Prelude function to include an error message in the log.
    ||])
 
   scAddress :: Address'
