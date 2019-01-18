@@ -56,17 +56,23 @@ votingValidator = ValidatorScript $ Ledger.fromCompiledCode $$(PlutusTx.compile
    let hashedChar = plcSHA2_256 $ BSLC.pack $ show char
    in payToScript_ scAddress prize $ DataScript $ Ledger.lifted hashedCharProject
    register closeProjectTrigger (closeProjectHandler hashedChar)
+   --Does this need to be added as a second input to the onchain code (as per @bobert tutorial "writing your first datascript") 
+   --and then dealt with there somehow?
    
   postCandidate :: [char] -> MockWallet ()
   postCandidate char = do
    let hashedChar = plcSHA2_256 $ BSLC.pack $ show char
    in collectFromScript votingValidator $ RedeemerScript $ Ledger.lifted hashedCharProspect
-
+   --Does this need to be added as a first input to the onchain code (as per @bobert tutorial "writing your first redeemerscript") 
+   --and then dealt with there somehow?
+   
   projectVote :: Int -> MockWallet ()
   projectVote numVote = do
    voteCheck num
    let hashedChar = plcSHA2_256 $ BSLC.pack $ show num
    collectFromScript votingValidator $ RedeemerScript $ Ledger.lifted numVote
+   --should we be using collectFromScript here where the voter is not getting a payout.
+   --should this just be a third input in the onchain code?
 
   closeContractTrigger :: EventTrigger
   closeContractTrigger = andT
