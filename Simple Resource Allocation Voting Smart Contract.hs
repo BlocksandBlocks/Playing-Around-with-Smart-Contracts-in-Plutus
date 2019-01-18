@@ -10,8 +10,8 @@ import           Wallet
 import           Playground.Contract
 
 
-jbValidator :: ValidatorScript
-jbValidator = ValidatorScript $ Ledger.fromCompiledCode $ $$(PlutusTx.compile
+votingValidator :: ValidatorScript
+votingValidator = ValidatorScript $ Ledger.fromCompiledCode $ $$(PlutusTx.compile
   [||
   \(projectVote :: [int]) (p :: PendingTx') ->
     let
@@ -41,7 +41,7 @@ jbValidator = ValidatorScript $ Ledger.fromCompiledCode $ $$(PlutusTx.compile
    ||])
 
   scAddress :: Address'
-  scAddress = Ledger.scriptAddress jbValidator
+  scAddress = Ledger.scriptAddress votingValidator
 
   voteCheck :: Int -> MockWallet ()
   voteCheck num = if num /= 1 or (-1) then throwOtherError "You may only vote 1 for the winner or -1 for losers."
@@ -57,14 +57,14 @@ jbValidator = ValidatorScript $ Ledger.fromCompiledCode $ $$(PlutusTx.compile
   postCandidate :: [char] -> MockWallet ()
   postCandidate char = do
    let hashedChar = plcSHA2_256 $ BSLC.pack $ show char
-   in collectFromScript jbValidator $ RedeemerScript $ Ledger.lifted hashedCharProspect
+   in collectFromScript votingValidator $ RedeemerScript $ Ledger.lifted hashedCharProspect
    --maybe we don’t need to lift anything here.
 
   projectVote :: Int -> MockWallet ()
   projectVote numVote = do
    voteCheck num
    let hashedChar = plcSHA2_256 $ BSLC.pack $ show num
-   collectFromScript jbValidator $ RedeemerScript $ Ledger.lifted numVote
+   collectFromScript votingValidator $ RedeemerScript $ Ledger.lifted numVote
 
   watchSCAddress :: MockWallet ()
   watchSCAddress = startWatching scAddress
@@ -78,7 +78,7 @@ jbValidator = ValidatorScript $ Ledger.fromCompiledCode $ $$(PlutusTx.compile
   closeContractHandler hashedChar = EventHandler (\_ -> do
    logMsg "No candidate won."
    logMsg "Ending project and withdrawing money from SC."
-   collectFromScript jbValidator $ RedeemerScript $ Ledger.lifted hashedChar
+   collectFromScript votingValidator $ RedeemerScript $ Ledger.lifted hashedChar
 
   $(mkFunction 'voteCheck)
   $(mkFunction 'fundProject)
