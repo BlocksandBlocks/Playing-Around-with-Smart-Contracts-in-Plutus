@@ -11,7 +11,7 @@ import           Playground.Contract
 
 
 votingValidator :: ValidatorScript
-votingValidator = ValidatorScript $ Ledger.fromCompiledCode $ $$(PlutusTx.compile
+votingValidator = ValidatorScript $ Ledger.fromCompiledCode $$(PlutusTx.compile
   [||
   \(projectVote :: [int]) (p :: PendingTx') ->
     let
@@ -47,18 +47,16 @@ votingValidator = ValidatorScript $ Ledger.fromCompiledCode $ $$(PlutusTx.compil
   voteCheck num = if num /= 1 or (-1) then throwOtherError "You may only vote 1 for the winner or -1 for losers."
    else pure ()
 
-  fundProject :: [char] -> MockWallet ()
-  fundProject char prize = do
+  fundProject :: [char] -> value -> MockWallet ()
+  fundProject [char] prize = do
    let hashedChar = plcSHA2_256 $ BSLC.pack $ show char
    in payToScript_ scAddress prize $ DataScript $ Ledger.lifted hashedCharProject
    register closeProjectTrigger (closeProjectHandler hashedChar)
-   --maybe we don’t need to lift anything here.
-
+   
   postCandidate :: [char] -> MockWallet ()
   postCandidate char = do
    let hashedChar = plcSHA2_256 $ BSLC.pack $ show char
    in collectFromScript votingValidator $ RedeemerScript $ Ledger.lifted hashedCharProspect
-   --maybe we don’t need to lift anything here.
 
   projectVote :: Int -> MockWallet ()
   projectVote numVote = do
