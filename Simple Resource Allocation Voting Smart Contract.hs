@@ -17,6 +17,9 @@ votingValidator = ValidatorScript $ Ledger.fromCompiledCode $$(PlutusTx.compile
   --first variable needs to be redeemerScript. second should be datascript.
   --how to make that work with the voting???
   --probably need to wait for a tutorial on multiple input handling???
+  --what if postCandidate in the offchain code involved the [char] and a project number and then projectVote in the offchain code
+  --involved voting by using the project number.
+  --Would we still need the accumulator style vote counting in that case...does that even work anyway????
     let
     
       voteTally :: int -> bool
