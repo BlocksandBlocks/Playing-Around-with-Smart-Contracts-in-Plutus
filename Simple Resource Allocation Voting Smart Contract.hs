@@ -13,7 +13,10 @@ import           Playground.Contract
 votingValidator :: ValidatorScript
 votingValidator = ValidatorScript $ Ledger.fromCompiledCode $$(PlutusTx.compile
   [||
-  \(projectVote :: [int]) (p :: PendingTx') ->
+  \(projectCandidate :: ???) (projectVote :: int) (p :: PendingTx') ->
+  --first variable needs to be redeemerScript. second should be datascript.
+  --how to make that work with the voting???
+  --probably need to wait for a tutorial on multiple input handling???
     let
     
       voteTally :: int -> bool
