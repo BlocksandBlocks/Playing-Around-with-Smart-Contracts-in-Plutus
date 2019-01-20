@@ -14,7 +14,8 @@ votingValidator :: ValidatorScript
 votingValidator = ValidatorScript $ Ledger.fromCompiledCode $$(PlutusTx.compile
   [||
   \(projectCandidate :: ???) (projectVote :: int) (p :: PendingTx') ->
-  --first variable needs to be redeemerScript. second should be datascript.
+  --first variable is the redeemerScript. second is datascript.  
+  --third variable is PendingTX' and is info about the current transaction provided by the slot leader.
   --how to make that work with the voting???
   --probably need to wait for a tutorial on multiple input handling???
   --what if postCandidate in the offchain code involved the [char] and a project number and then projectVote in the offchain code
@@ -32,7 +33,7 @@ votingValidator = ValidatorScript $ Ledger.fromCompiledCode $$(PlutusTx.compile
       --this is different than "$" which just denotes a parenthetical,
       --”\” denotes a lambda (i.e. just a function without a name we’ll only use once),
       --”i” is just the argument we’re passing to the nameless function,
-      --”greatherThanInteger i 0” just checks if “i” is greater than “0”,
+      --”greatherThanInteger (i+acc) 0” just checks if “(i+acc)” is greater than “0”,
       --”acc” is an accumulator (explained in “Folds and Horses” chapter in Learn you a Haskell), and
       --the 0 after the parenthetical is the starting point for the accumulator.
 
@@ -70,7 +71,7 @@ votingValidator = ValidatorScript $ Ledger.fromCompiledCode $$(PlutusTx.compile
    let hashedChar = plcSHA2_256 $ BSLC.pack $ show char
    in collectFromScript votingValidator $ RedeemerScript $ Ledger.lifted hashedCharProspect
    --Does this need to be added as a first input to the onchain code (as per @bobert tutorial "writing your first redeemerscript") 
-   --and then dealt with there somehow?
+   --and then dealt with there somehow? 
    
   projectVote :: Int -> MockWallet ()
   projectVote numVote = do
