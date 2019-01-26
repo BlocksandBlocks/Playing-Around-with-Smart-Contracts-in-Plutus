@@ -75,9 +75,7 @@ votingValidator = ValidatorScript $ Ledger.fromCompiledCode $$(PlutusTx.compile
   projectVote numVote = do
    voteCheck num
    let hashedChar = plcSHA2_256 $ BSLC.pack $ show num
-   in votingValidator $ RedeemerScript $ Ledger.lifted numVote
-   --should not be a collectFromScript here where the voter is not getting a payout.
-   --this should be a third input in the onchain code instead of a RedeemerScript since we already have a RedeemerScript?
+   in votingValidator $ DataScript $ Ledger.lifted numVote
 
   closeContractTrigger :: EventTrigger
   closeContractTrigger = andT
