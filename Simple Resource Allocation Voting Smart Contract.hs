@@ -13,7 +13,7 @@ import           Playground.Contract
 votingValidator :: ValidatorScript
 votingValidator = ValidatorScript $ Ledger.fromCompiledCode $$(PlutusTx.compile
   [||
-  \(projectCandidate :: ???) (projectVote :: int) (p :: PendingTx') ->
+  \(projectCandidate :: [char]) (projectVote :: int) (p :: PendingTx') ->
   --first variable is the redeemerScript. second is datascript.  
   --third variable is PendingTX' and is info about the current transaction provided by the slot leader.
   --how to make that work with the voting???
@@ -58,12 +58,10 @@ votingValidator = ValidatorScript $ Ledger.fromCompiledCode $$(PlutusTx.compile
   voteCheck num = if num /= 1 or (-1) then throwOtherError "You may only vote 1 for the winner or -1 for losers."
    else pure ()
 
-  fundProject :: [char] -> value -> MockWallet ()
-  fundProject [char] prize = do
-   let hashedChar = plcSHA2_256 $ BSLC.pack $ show char
-   in payToScript_ scAddress prize $ DataScript $ Ledger.lifted hashedCharProject
-   register closeProjectTrigger (closeProjectHandler hashedChar)
-   --Can we make this a payToScript but not a DataScript to make room for projectVote as the DataScript?
+  fundProject :: value -> MockWallet ()
+  fundProject prize = payToScript_ scAddress prize 
+   --This used to look like projectVote below, but we couldn't have two dataScripts.
+   --Made this a payToScript but not a DataScript to make room for projectVote as the DataScript?
    --We don't need the char since we can just tell parties (exogenous to the SC) that this is the SC where they submit projects.
    
   postCandidate :: [char] -> MockWallet ()
@@ -77,7 +75,7 @@ votingValidator = ValidatorScript $ Ledger.fromCompiledCode $$(PlutusTx.compile
   projectVote numVote = do
    voteCheck num
    let hashedChar = plcSHA2_256 $ BSLC.pack $ show num
-   collectFromScript votingValidator $ RedeemerScript $ Ledger.lifted numVote
+   in votingValidator $ RedeemerScript $ Ledger.lifted numVote
    --should not be a collectFromScript here where the voter is not getting a payout.
    --this should be a third input in the onchain code instead of a RedeemerScript since we already have a RedeemerScript?
 
