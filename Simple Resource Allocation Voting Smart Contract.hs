@@ -24,8 +24,8 @@ votingValidator = ValidatorScript $ Ledger.fromCompiledCode $$(PlutusTx.compile
     let
     
       voteTally :: int -> bool
-      voteTally n = = $$(P.foldr) (\i acc -> Builtins.greaterThanInteger (i+acc) 0) 0 projectVote
-     
+      voteTally n = = $$(P.foldr) (\i acc -> Builtins.greaterThanInteger (i+acc) 0) false projectVote
+      --First problem is that this probably doesn't actually accumulate all the votes of various voters.  
       --This is not an excellent voting mechanism (i.e. everyone votes 1 for winner and 0 for losers) since multiple candidates
       --could end up with vote tallies greater than zero.
       --The following are my probably incorrect assumptions about how this line above works:
@@ -35,7 +35,7 @@ votingValidator = ValidatorScript $ Ledger.fromCompiledCode $$(PlutusTx.compile
       --”i” is just the argument we’re passing to the nameless function,
       --”greatherThanInteger (i+acc) 0” just checks if “(i+acc)” is greater than “0”,
       --”acc” is an accumulator (explained in “Folds and Horses” chapter in Learn you a Haskell), and
-      --the 0 after the parenthetical is the starting point for the accumulator.
+      --the "false" after the parenthetical is the starting point for the accumulator.
 
       voteCarries :: Bool
       voteCarries = $$(P.foldr) (\i acc -> $$(P.and) acc (voteTally i)) True projectVote
