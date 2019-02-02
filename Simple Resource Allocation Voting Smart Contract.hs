@@ -45,7 +45,7 @@ votingValidator = ValidatorScript $ Ledger.fromCompiledCode $$(PlutusTx.compile
       if voteCarries
       then ()
       else $$(P.error) ($$(P.traceH) "Sorry. You did not win the vote." ())
-      --"traceH" is the Prelude function to include an error message in the log.
+      --"traceH" is a Prelude function .
    ||])
 
   scAddress :: Address'
@@ -63,7 +63,8 @@ votingValidator = ValidatorScript $ Ledger.fromCompiledCode $$(PlutusTx.compile
     let hashedChar = plcSHA2_256 $ BSLC.pack $ show char
     in payToScript_ scAddress prize $ DataScript $ Ledger.lifted char
     register closeContractTrigger (closeContractHandler char)
-   --It's possible we don't need the char since we can just tell parties (exogenous to the SC) that this is the SC where they submit projects.
+   {-It's possible we don't need the char since we can just tell parties (exogenous to the SC) that this is 
+   the SC where they submit projects.-}
    --The Jelly Bean Game example has multiple inputs like this.
    
   postCandidateAndVote :: [char] -> int -> MockWallet ()
@@ -86,12 +87,7 @@ votingValidator = ValidatorScript $ Ledger.fromCompiledCode $$(PlutusTx.compile
    logMsg "Ending project and withdrawing money from SC."
    collectFromScript votingValidator $ RedeemerScript $ Ledger.lifted hashedChar)
 
-  $(mkFunction 'voteCheck)
-  $(mkFunction 'fundProject)
-  $(mkFunction 'postCandidate)
-  $(mkFunction 'projectVote)
-  $(mkFunction 'watchSCAddress)
-  $(mkFunction 'projectVote)
   
-
-
+  $(mkFunction 'fundProject)
+  $(mkFunction 'postCandidateAndVote)
+  $(mkFunction 'watchSCAddress)
