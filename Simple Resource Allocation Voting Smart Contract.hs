@@ -13,7 +13,7 @@ import           Playground.Contract
 votingValidator :: ValidatorScript
 votingValidator = ValidatorScript $ Ledger.fromCompiledCode $$(PlutusTx.compile
   [||
-  \(projectCandidate :: [char]) (projectVote :: int) (p :: PendingTx') ->
+  \(projectVote :: int) (fundProject :: [char]) (p :: PendingTx') ->
   --first variable is the redeemerScript. second is datascript.  
   --third variable is PendingTX' and is info about the current transaction provided by the slot leader.
   --how to make that work with the voting???
@@ -58,24 +58,22 @@ votingValidator = ValidatorScript $ Ledger.fromCompiledCode $$(PlutusTx.compile
   voteCheck num = if num /= 1 or (-1) then throwOtherError "You may only vote 1 for the winner or -1 for losers."
    else pure ()
 
-  fundProject :: value -> MockWallet ()
-  fundProject prize = payToScript_ scAddress prize 
-   --This used to look like projectVote below, but we couldn't have two dataScripts.
-   --Made this a payToScript but not a DataScript to make room for projectVote as the DataScript?
-   --We don't need the char since we can just tell parties (exogenous to the SC) that this is the SC where they submit projects.
+  fundProject :: [char] -> value -> MockWallet ()
+  fundProject char prize = do
+    let hashedChar = plcSHA2_256 $ BSLC.pack $ show char
+    in payToScript_ scAddress prize $ DataScript $ Ledger.lifted char
+    register closeContractTrigger (closeContractHandler char)
+   --It's possible we don't need the char since we can just tell parties (exogenous to the SC) that this is the SC where they submit projects.
+   --The Jelly Bean Game example has multiple inputs like this.
    
-  postCandidate :: [char] -> MockWallet ()
-  postCandidate char = do
-   let hashedChar = plcSHA2_256 $ BSLC.pack $ show char
-   in collectFromScript votingValidator $ RedeemerScript $ Ledger.lifted hashedCharProspect
-   --Does this need to be added as a first input to the onchain code (as per @bobert tutorial "writing your first redeemerscript") 
-   --and then dealt with there somehow? 
-   
-  projectVote :: Int -> MockWallet ()
-  projectVote numVote = do
+  postCandidateAndVote :: [char] -> int -> MockWallet ()
+  postCandidate char numVote = do
    voteCheck num
-   let hashedChar = plcSHA2_256 $ BSLC.pack $ show num
-   in votingValidator $ DataScript $ Ledger.lifted numVote
+   let hashedChar = plcSHA2_256 $ BSLC.pack $ show char
+   in collectFromScript votingValidator $ RedeemerScript $ Ledger.lifted numVote
+   --Here the candidate providers would provide a candidate and vote (presumably for their own candidate).
+   --Addresses just voting would provide a blank char list and then just vote in the int spot.
+   --How do we get the candidate ([char]) shown to the other voters (presumeably in the onchain code).
 
   closeContractTrigger :: EventTrigger
   closeContractTrigger = andT
