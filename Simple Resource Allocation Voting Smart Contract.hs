@@ -24,7 +24,7 @@ votingValidator = ValidatorScript $ Ledger.fromCompiledCode $$(PlutusTx.compile
     let
     
       voteTally :: int -> bool
-      voteTally n = = $$(P.foldr) (\i acc -> Builtins.greaterThanInteger (i+acc) 0) false projectVote
+      voteTally n = $$(P.foldr) (\i acc -> Builtins.greaterThanInteger (i+acc) 0) false projectVote
       --First problem is that this probably doesn't actually accumulate all the votes of various voters.  
       --This is not an excellent voting mechanism (i.e. everyone votes 1 for winner and 0 for losers) since multiple candidates
       --could end up with vote tallies greater than zero.
