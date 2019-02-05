@@ -60,7 +60,6 @@ voteCheck :: Int -> MockWallet ()
 
 fundProject :: [char] -> value -> MockWallet ()
 fundProject char prize = do
-  let hashedChar = plcSHA2_256 $ BSLC.pack $ show char
   payToScript_ scAddress prize $ DataScript $ Ledger.lifted char
   register closeContractTrigger (closeContractHandler char)
    {-It's possible we don't need the char since we can just tell parties (exogenous to the SC) that this is 
@@ -70,8 +69,7 @@ fundProject char prize = do
 postCandidateAndVote :: [char] -> int -> MockWallet ()
 postCandidate char numVote = do
   voteCheck num
-  let hashedChar = plcSHA2_256 $ BSLC.pack $ show char
-  collectFromScript votingValidator $ RedeemerScript $ Ledger.lifted numVote
+  collectFromScript votingValidator $ RedeemerScript $ Ledger.lifted char
    --Here the candidate providers would provide a candidate and vote (presumably for their own candidate).
    --Addresses just voting would provide a blank char list and then just vote in the int spot.
    --But there's no way to lift both the char and the int.   Damn!
