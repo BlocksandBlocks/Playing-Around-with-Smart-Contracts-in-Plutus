@@ -48,45 +48,45 @@ votingValidator = ValidatorScript $ Ledger.fromCompiledCode $$(PlutusTx.compile
       --"traceH" is a Prelude function .
    ||])
 
-  scAddress :: Address'
-  scAddress = Ledger.scriptAddress votingValidator
+scAddress :: Address'
+scAddress = Ledger.scriptAddress votingValidator
   
-  watchSCAddress :: MockWallet ()
-  watchSCAddress = startWatching scAddress
+watchSCAddress :: MockWallet ()
+watchSCAddress = startWatching scAddress
 
-  voteCheck :: Int -> MockWallet ()
+voteCheck :: Int -> MockWallet ()
   voteCheck num = if num /= 1 or (-1) then throwOtherError "You may only vote 1 for the winner or -1 for losers."
-   else pure ()
+  else pure ()
 
-  fundProject :: [char] -> value -> MockWallet ()
-  fundProject char prize = do
-    let hashedChar = plcSHA2_256 $ BSLC.pack $ show char
-    in payToScript_ scAddress prize $ DataScript $ Ledger.lifted char
-    register closeContractTrigger (closeContractHandler char)
+fundProject :: [char] -> value -> MockWallet ()
+fundProject char prize = do
+  let hashedChar = plcSHA2_256 $ BSLC.pack $ show char
+  payToScript_ scAddress prize $ DataScript $ Ledger.lifted char
+  register closeContractTrigger (closeContractHandler char)
    {-It's possible we don't need the char since we can just tell parties (exogenous to the SC) that this is 
    the SC where they submit projects.-}
    --The Jelly Bean Game example has multiple inputs like this.
    
-  postCandidateAndVote :: [char] -> int -> MockWallet ()
-  postCandidate char numVote = do
-   voteCheck num
-   let hashedChar = plcSHA2_256 $ BSLC.pack $ show char
-   in collectFromScript votingValidator $ RedeemerScript $ Ledger.lifted numVote
+postCandidateAndVote :: [char] -> int -> MockWallet ()
+postCandidate char numVote = do
+  voteCheck num
+  let hashedChar = plcSHA2_256 $ BSLC.pack $ show char
+  collectFromScript votingValidator $ RedeemerScript $ Ledger.lifted numVote
    --Here the candidate providers would provide a candidate and vote (presumably for their own candidate).
    --Addresses just voting would provide a blank char list and then just vote in the int spot.
    --How do we get the candidate ([char]) shown to the other voters (presumeably in the onchain code).
    --the [char] would be the number identifier of the candidate and a word description.
 
-  closeContractTrigger :: EventTrigger
-  closeContractTrigger = andT
-   (fundsAtAddressT scAddress $ GEQ 1)
-   (blockHeightT (Interval (Height 100) (Height 101)))
+closeContractTrigger :: EventTrigger
+closeContractTrigger = andT
+  (fundsAtAddressT scAddress $ GEQ 1)
+  (blockHeightT (Interval (Height 100) (Height 101)))
 
-  closeContractHandler :: ByteString -> EventHandler MockWallet
-  closeContractHandler hashedChar = EventHandler (\_ -> do
-   logMsg "No candidate won."
-   logMsg "Ending project and withdrawing money from SC."
-   collectFromScript votingValidator $ RedeemerScript $ Ledger.lifted hashedChar)
+closeContractHandler :: ByteString -> EventHandler MockWallet
+closeContractHandler hashedChar = EventHandler (\_ -> do
+    logMsg "No candidate won."
+    logMsg "Ending project and withdrawing money from SC."
+    collectFromScript votingValidator $ RedeemerScript $ Ledger.lifted hashedChar)
 
   
   $(mkFunction 'fundProject)
