@@ -74,8 +74,7 @@ postCandidate char numVote = do
   collectFromScript votingValidator $ RedeemerScript $ Ledger.lifted numVote
    --Here the candidate providers would provide a candidate and vote (presumably for their own candidate).
    --Addresses just voting would provide a blank char list and then just vote in the int spot.
-   --How do we get the candidate ([char]) shown to the other voters (presumeably in the onchain code).
-   --the [char] would be the number identifier of the candidate and a word description.
+   --But there's no way to lift both the char and the int.   Damn!
 
 closeContractTrigger :: EventTrigger
 closeContractTrigger = andT
